@@ -174,6 +174,11 @@ async function main() {
   await (await adminFacet.grantRole(HTA_ASSESSOR_ROLE, htaAssessor.address)).wait();
   console.log("   Granted HTA_ASSESSOR_ROLE to HTA assessor EOA:", htaAssessor.address);
 
+  const CERTIFIER_ROLE = hre.ethers.id("CERTIFIER_ROLE");
+  const certifier = (await hre.ethers.getSigners())[6];
+  await (await adminFacet.grantRole(CERTIFIER_ROLE, certifier.address)).wait();
+  console.log("   Granted CERTIFIER_ROLE to certifier EOA:", certifier.address);
+
   await accountFactory.setRelayer(relayerAddress);
   console.log("   Set relayer in SMARTAccountFactory");
 
