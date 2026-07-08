@@ -47,6 +47,15 @@ library LifecycleEvents {
         uint256 timestamp
     );
 
+    event CertificationAttested(
+        uint256 indexed tokenId,
+        address indexed certifier,
+        bytes32 imageDigest,
+        bytes32 certHash,
+        uint8 verdict,
+        uint256 timestamp
+    );
+
     event ModelCardRevised(
         uint256 indexed tokenId,
         address indexed revisor,
