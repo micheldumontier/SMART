@@ -27,6 +27,7 @@ async function deployLifecycle() {
     "LifecycleNFT",
     "LifecycleLineage",
     "LifecycleEvaluation",
+    "LifecycleAttestation",
   ];
   const cuts = [];
   for (const name of modNames) {
@@ -51,6 +52,7 @@ describe("attestHTA", function () {
   it("lets an HTA assessor attest a Published card and rejects non-assessors", async function () {
     const { diamond, admin, dev, hta } = await deployLifecycle();
     const core = await hre.ethers.getContractAt("LifecycleCore", diamond);
+    const attestation = await hre.ethers.getContractAt("LifecycleAttestation", diamond);
     const adminF = await hre.ethers.getContractAt("LifecycleAdmin", diamond);
 
     const HTA_ROLE = hre.ethers.id("HTA_ASSESSOR_ROLE");
@@ -76,10 +78,10 @@ describe("attestHTA", function () {
 
     // Happy path: admin holds HTA_ROLE and can attest a Published card
     const reportHash = hre.ethers.id("hta-report");
-    await expect(core.attestHTA(tokenId, 0, reportHash))
-      .to.emit(core, "HTAAttested");
+    await expect(attestation.attestHTA(tokenId, 0, reportHash))
+      .to.emit(attestation, "HTAAttested");
 
     // Unhappy path: hta signer has no role → must revert
-    await expect(core.connect(hta).attestHTA(tokenId, 0, reportHash)).to.be.reverted;
+    await expect(attestation.connect(hta).attestHTA(tokenId, 0, reportHash)).to.be.reverted;
   });
 });

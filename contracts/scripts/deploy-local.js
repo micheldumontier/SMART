@@ -85,6 +85,7 @@ async function main() {
     { name: "LifecycleNFT" },
     { name: "LifecycleLineage" },
     { name: "LifecycleEvaluation" },
+    { name: "LifecycleAttestation" },
   ];
   const moduleAddresses = {};
   const cuts = [];

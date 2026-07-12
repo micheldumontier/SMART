@@ -20,6 +20,7 @@ async function deployLifecycle() {
   const modNames = [
     "RouterIntrospection", "LifecycleCore", "LifecycleQuorum",
     "LifecycleAdmin", "LifecycleNFT", "LifecycleLineage", "LifecycleEvaluation",
+    "LifecycleAttestation",
   ];
   const cuts = [];
   for (const name of modNames) {
@@ -43,6 +44,7 @@ describe("attestCertification", function () {
   it("lets a CERTIFIER_ROLE holder attest an active (unpublished) card and emits the event", async function () {
     const { diamond, admin } = await deployLifecycle();
     const core = await hre.ethers.getContractAt("LifecycleCore", diamond);
+    const attestation = await hre.ethers.getContractAt("LifecycleAttestation", diamond);
     const adminF = await hre.ethers.getContractAt("LifecycleAdmin", diamond);
 
     const DEV = hre.ethers.id("DEVELOPER_ROLE");
@@ -58,14 +60,15 @@ describe("attestCertification", function () {
     const certHash = hre.ethers.id("signed-cert-bytes");
 
     // active-but-NOT-Published: attest right after creation (no submit/validate/publish)
-    await expect(core.attestCertification(tokenId, imageDigest, certHash, 0))
-      .to.emit(core, "CertificationAttested")
+    await expect(attestation.attestCertification(tokenId, imageDigest, certHash, 0))
+      .to.emit(attestation, "CertificationAttested")
       .withArgs(tokenId, admin.address, imageDigest, certHash, 0, anyUint);
   });
 
   it("reverts when a non-certifier calls it", async function () {
     const { diamond, admin, dev, certifier } = await deployLifecycle();
     const core = await hre.ethers.getContractAt("LifecycleCore", diamond);
+    const attestation = await hre.ethers.getContractAt("LifecycleAttestation", diamond);
     const adminF = await hre.ethers.getContractAt("LifecycleAdmin", diamond);
 
     await (await adminF.grantRole(hre.ethers.id("DEVELOPER_ROLE"), admin.address)).wait();
@@ -73,36 +76,38 @@ describe("attestCertification", function () {
 
     // certifier signer was granted NOTHING
     await expect(
-      core.connect(certifier).attestCertification(1, hre.ethers.id("d"), hre.ethers.id("c"), 0)
+      attestation.connect(certifier).attestCertification(1, hre.ethers.id("d"), hre.ethers.id("c"), 0)
     ).to.be.reverted;
   });
 
   it("reverts on zero certHash or zero imageDigest", async function () {
     const { diamond, admin } = await deployLifecycle();
     const core = await hre.ethers.getContractAt("LifecycleCore", diamond);
+    const attestation = await hre.ethers.getContractAt("LifecycleAttestation", diamond);
     const adminF = await hre.ethers.getContractAt("LifecycleAdmin", diamond);
 
     await (await adminF.grantRole(hre.ethers.id("DEVELOPER_ROLE"), admin.address)).wait();
     await (await adminF.grantRole(hre.ethers.id("CERTIFIER_ROLE"), admin.address)).wait();
     await (await core.createModelCard(admin.address, "ipfs://x", hre.ethers.id("card-cert-3"))).wait();
 
-    await expect(core.attestCertification(1, hre.ethers.id("d"), hre.ethers.ZeroHash, 0))
+    await expect(attestation.attestCertification(1, hre.ethers.id("d"), hre.ethers.ZeroHash, 0))
       .to.be.revertedWith("Cert hash required");
-    await expect(core.attestCertification(1, hre.ethers.ZeroHash, hre.ethers.id("c"), 0))
+    await expect(attestation.attestCertification(1, hre.ethers.ZeroHash, hre.ethers.id("c"), 0))
       .to.be.revertedWith("Image digest required");
   });
 
   it("records a failed verdict (1) as well as certified (0)", async function () {
     const { diamond, admin } = await deployLifecycle();
     const core = await hre.ethers.getContractAt("LifecycleCore", diamond);
+    const attestation = await hre.ethers.getContractAt("LifecycleAttestation", diamond);
     const adminF = await hre.ethers.getContractAt("LifecycleAdmin", diamond);
 
     await (await adminF.grantRole(hre.ethers.id("DEVELOPER_ROLE"), admin.address)).wait();
     await (await adminF.grantRole(hre.ethers.id("CERTIFIER_ROLE"), admin.address)).wait();
     await (await core.createModelCard(admin.address, "ipfs://x", hre.ethers.id("card-cert-4"))).wait();
 
-    await expect(core.attestCertification(1, hre.ethers.id("d"), hre.ethers.id("c"), 1))
-      .to.emit(core, "CertificationAttested")
+    await expect(attestation.attestCertification(1, hre.ethers.id("d"), hre.ethers.id("c"), 1))
+      .to.emit(attestation, "CertificationAttested")
       .withArgs(1, admin.address, hre.ethers.id("d"), hre.ethers.id("c"), 1, anyUint);
   });
 });
