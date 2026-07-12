@@ -19,7 +19,7 @@ async function deployLifecycle() {
   const cut = await hre.ethers.getContractAt("RouterAdmin", diamondAddr);
   const modNames = [
     "RouterIntrospection", "LifecycleCore", "LifecycleQuorum",
-    "LifecycleAdmin", "LifecycleNFT", "LifecycleLineage",
+    "LifecycleAdmin", "LifecycleNFT", "LifecycleLineage", "LifecycleEvaluation",
   ];
   const cuts = [];
   for (const name of modNames) {

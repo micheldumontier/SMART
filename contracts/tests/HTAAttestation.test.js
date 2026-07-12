@@ -26,6 +26,7 @@ async function deployLifecycle() {
     "LifecycleAdmin",
     "LifecycleNFT",
     "LifecycleLineage",
+    "LifecycleEvaluation",
   ];
   const cuts = [];
   for (const name of modNames) {
