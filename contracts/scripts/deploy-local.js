@@ -84,6 +84,7 @@ async function main() {
     { name: "LifecycleAdmin" },
     { name: "LifecycleNFT" },
     { name: "LifecycleLineage" },
+    { name: "LifecycleEvaluation" },
   ];
   const moduleAddresses = {};
   const cuts = [];
@@ -178,6 +179,11 @@ async function main() {
   const certifier = (await hre.ethers.getSigners())[6];
   await (await adminFacet.grantRole(CERTIFIER_ROLE, certifier.address)).wait();
   console.log("   Granted CERTIFIER_ROLE to certifier EOA:", certifier.address);
+
+  const EVALUATOR_ROLE = hre.ethers.id("EVALUATOR_ROLE");
+  const evaluator = (await hre.ethers.getSigners())[7];
+  await (await adminFacet.grantRole(EVALUATOR_ROLE, evaluator.address)).wait();
+  console.log("   Granted EVALUATOR_ROLE to evaluator EOA:", evaluator.address);
 
   await accountFactory.setRelayer(relayerAddress);
   console.log("   Set relayer in SMARTAccountFactory");

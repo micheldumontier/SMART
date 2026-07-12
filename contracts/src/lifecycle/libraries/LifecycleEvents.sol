@@ -56,6 +56,15 @@ library LifecycleEvents {
         uint256 timestamp
     );
 
+    event EvaluationVerdictAttested(
+        uint256 indexed tokenId,
+        address indexed evaluator,
+        bytes32 verdictDigest,
+        bytes32 modelDigest,
+        uint8 overall,
+        uint256 timestamp
+    );
+
     event ModelCardRevised(
         uint256 indexed tokenId,
         address indexed revisor,
